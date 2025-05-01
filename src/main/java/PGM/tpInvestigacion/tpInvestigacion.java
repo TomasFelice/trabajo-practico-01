@@ -12,8 +12,8 @@ public class tpInvestigacion {
         try {
             // Valores arbitrarios para test
             int dx = 1;
-            int dy = 1;
-            int valorFijo = 7;
+            int dy = 2;
+            int valorFijo = 0;
 
             // Procesar P2
             String archivoOrigenP2 = INPUT_DIRECTORY + "p2.pgm";
@@ -27,6 +27,10 @@ public class tpInvestigacion {
             System.out.println("Escribiendo archivo: " + archivoDestinoP2);
             matrizDesplazadaP2.write(archivoDestinoP2);
             System.out.println("Archivo " + nombreNuevoArchivoP2 + " Generado en " + OUTPUT_DIRECTORY);
+            System.out.println("Matriz original es igual a desplazada? -> " + matrizDesplazadaP2.equals(PGMOrigenP2) );
+            System.out.println("Matriz original -> " + PGMOrigenP2);
+            System.out.println("Matriz desplazada -> " + matrizDesplazadaP2);
+
             System.out.println("--------------------");
 
             // Procesar P5
@@ -41,6 +45,9 @@ public class tpInvestigacion {
             System.out.println("Escribiendo archivo: " + archivoDestinoP5);
             matrizDesplazadaP5.write(archivoDestinoP5);
             System.out.println("Archivo " + nombreNuevoArchivoP5 + " Generado en " + OUTPUT_DIRECTORY);
+            System.out.println("Matriz original es igual a desplazada? -> " + matrizDesplazadaP5.equals(PGMOrigenP5) );
+            System.out.println("Matriz original -> " + PGMOrigenP5);
+            System.out.println("Matriz desplazada -> " + matrizDesplazadaP5);
 
         } catch (IOException e) {
             System.err.println("Ocurrió un error de E/S al procesar los archivos PGM:");

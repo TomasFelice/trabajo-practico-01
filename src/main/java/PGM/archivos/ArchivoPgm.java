@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Objects;
 
 public abstract class ArchivoPgm {
@@ -206,8 +207,28 @@ public abstract class ArchivoPgm {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ArchivoPgm that = (ArchivoPgm) o;
+        return alto == that.alto &&
+                ancho == that.ancho &&
+                valorMax == that.valorMax &&
+                Objects.equals(nroMagico, that.nroMagico) &&
+                Arrays.deepEquals(matriz, that.matriz);
+    }
+
+    @Override
     public String toString() {
-        return String.format("ArchivoPGM [Magic: %s, Dimension: %dx%d, MaxVal: %d]",
-                nroMagico, ancho, alto, valorMax);
+        StringBuilder matrizStr = new StringBuilder();
+        matrizStr.append("[");
+        for (int i = 0; i < alto; i++) {
+            matrizStr.append("\n\t");
+            matrizStr.append(Arrays.toString(matriz[i]));
+        }
+        matrizStr.append("\n]");
+
+        return String.format("ArchivoPgm{nroMagico='%s', alto=%d, ancho=%d, valorMax=%d, \nmatriz=%s}",
+                nroMagico, alto, ancho, valorMax, matrizStr);
     }
 }
