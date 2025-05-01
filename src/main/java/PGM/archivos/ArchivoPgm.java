@@ -17,6 +17,26 @@ public abstract class ArchivoPgm {
     protected int valorMax;
     protected int[][] matriz;
 
+    public String getNroMagico(){
+        return nroMagico;
+    }
+
+    public int getAlto(){
+        return alto;
+    }
+
+    public int getAncho(){
+        return ancho;
+    }
+
+    public int getValorMax(){
+        return valorMax;
+    }
+
+    public int[][] getMatriz(){
+        return matriz;
+    }
+
     // Constructor protegido: solo accesible por las subclases
     protected ArchivoPgm(String nroMagico, int alto, int ancho, int valorMax) {
         if (alto <= 0 || ancho <= 0 || valorMax < 0 || nroMagico == null || nroMagico.isEmpty()) {
@@ -93,6 +113,7 @@ public abstract class ArchivoPgm {
             do {
                 valorMaxLine = Objects.requireNonNull(readAsciiLine(bis)).trim();
             } while (valorMaxLine.startsWith("#") || valorMaxLine.isEmpty());
+
             int valorMax = Integer.parseInt(valorMaxLine);
 
             ArchivoPgm imagen;
@@ -157,10 +178,6 @@ public abstract class ArchivoPgm {
 
         if (dx == 0 && dy == 0) {
             return this;
-        }
-
-        if (dx < 0 || dy < 0) {
-            throw new IllegalArgumentException("El desplazamiento debe ser positivo.");
         }
 
         // Creamos una nueva instancia del mismo tipo (P2 o P5)

@@ -21,7 +21,7 @@ public class ArchivoPgmP5 extends ArchivoPgm {
             is.reset();
         }
 
-        int bytesPerPixel = (valorMax <= 255) ? 1 : 2;
+        int bytesPerPixel = (valorMax <= 255) ? 1 : 2; //puede ser 1 o 2 bytes
         int totalBytes    = alto * ancho * bytesPerPixel;
 
         byte[] buffer = new byte[totalBytes];
