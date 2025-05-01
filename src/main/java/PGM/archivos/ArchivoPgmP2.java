@@ -18,9 +18,9 @@ public class ArchivoPgmP2 extends ArchivoPgm {
     // --- Implementación de métodos abstractos ---
 
     @Override
-    protected void readPixelData(BufferedInputStream is) throws IOException {
+    protected void readPixelData(BufferedInputStream bis) throws IOException {
         // ❷ Forzamos ASCII y añadimos un delimitador que ignora comentarios (# …)
-        Scanner pixelScanner = new Scanner(is, StandardCharsets.US_ASCII);
+        Scanner pixelScanner = new Scanner(bis, StandardCharsets.US_ASCII);
         pixelScanner.useDelimiter("(\\s+|#.*\\R)+");   // blancos  o  comentarios
 
         this.matriz = new int[alto][ancho];
@@ -37,9 +37,9 @@ public class ArchivoPgmP2 extends ArchivoPgm {
     }
 
     @Override
-    protected void writePixelData(BufferedOutputStream os) {
+    protected void writePixelData(BufferedOutputStream bos) {
         // Para P2, escribimos los píxeles como enteros ASCII
-        PrintWriter pixelWriter = new PrintWriter(os);
+        PrintWriter pixelWriter = new PrintWriter(bos);
 
         for (int i = 0; i < this.alto; ++i) {
             for (int j = 0; j < this.ancho; ++j) {

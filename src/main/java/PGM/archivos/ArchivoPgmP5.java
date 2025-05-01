@@ -13,12 +13,12 @@ public class ArchivoPgmP5 extends ArchivoPgm {
     }
 
     @Override
-    protected void readPixelData(BufferedInputStream is) throws IOException {
+    protected void readPixelData(BufferedInputStream bis) throws IOException {
         // ❶ Saltamos (si existe) el '\n' inmediato al valorMax del encabezado
-        is.mark(1);
-        int first = is.read();
+        bis.mark(1);
+        int first = bis.read();
         if (first != '\n' && first != '\r') {   // no era salto de línea → volvemos atrás
-            is.reset();
+            bis.reset();
         }
 
         int bytesPerPixel = (valorMax <= 255) ? 1 : 2; //puede ser 1 o 2 bytes
@@ -26,8 +26,8 @@ public class ArchivoPgmP5 extends ArchivoPgm {
 
         byte[] buffer = new byte[totalBytes];
         int offset = 0;
-        while (offset < totalBytes) {          // ❷ readFully manual
-            int n = is.read(buffer, offset, totalBytes - offset);
+        while (offset < totalBytes) { 
+            int n = bis.read(buffer, offset, totalBytes - offset);
             if (n == -1)
                 throw new IOException("Datos de píxeles insuficientes en P5.");
             offset += n;
@@ -50,21 +50,21 @@ public class ArchivoPgmP5 extends ArchivoPgm {
     }
 
     @Override
-    protected void writePixelData(BufferedOutputStream os) throws IOException {
+    protected void writePixelData(BufferedOutputStream bos) throws IOException {
         int bytesPerPixel = (valorMax <= 255) ? 1 : 2;
 
         for (int i = 0; i < alto; i++) {
             for (int j = 0; j < ancho; j++) {
                 int val = matriz[i][j];
                 if (bytesPerPixel == 1) {
-                    os.write(val & 0xFF);
+                    bos.write(val & 0xFF);
                 } else {                       // 16-bits, big-endian
-                    os.write((val >> 8) & 0xFF);
-                    os.write(val & 0xFF);
+                    bos.write((val >> 8) & 0xFF);
+                    bos.write(val & 0xFF);
                 }
             }
         }
-        os.flush(); // aseguramos escritura
+        bos.flush(); // aseguramos escritura
     }
 
     @Override

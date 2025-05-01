@@ -75,11 +75,11 @@ public abstract class ArchivoPgm {
 
     // Metodo abstracto para que cada formato lea sus datos de pixeles
     // Recibe el stream posicionado justo después de la cabecera
-    protected abstract void readPixelData(BufferedInputStream is) throws IOException;
+    protected abstract void readPixelData(BufferedInputStream bis) throws IOException;
 
     // Metodo abstracto para que cada formato escriba sus datos de pixeles
     // Recibe el stream donde escribir los datos
-    protected abstract void writePixelData(BufferedOutputStream os) throws IOException;
+    protected abstract void writePixelData(BufferedOutputStream bos) throws IOException;
 
     // Metodo abstracto de fábrica: permite a la clase base crear una nueva instancia
     // del mismo tipo concreto (PGM_P2 o PGM_P5) con las dimensiones dadas.
