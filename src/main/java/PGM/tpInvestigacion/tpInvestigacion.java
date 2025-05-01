@@ -11,9 +11,9 @@ public class tpInvestigacion {
 
         try {
             // Valores arbitrarios para test
-            int dx = 2;
+            int dx = 1;
             int dy = 1;
-            int valorFijo = 0;
+            int valorFijo = 7;
 
             // Procesar P2
             String archivoOrigenP2 = INPUT_DIRECTORY + "p2.pgm";
