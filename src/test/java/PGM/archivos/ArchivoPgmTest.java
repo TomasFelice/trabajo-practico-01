@@ -197,17 +197,20 @@ public class ArchivoPgmTest {
             }
         }
 
-        // Desplazamos +1 en X y +1 en Y, borde en 0
-        ArchivoPgm sh = p2.shifted(1,1, 0);
+        ArchivoPgm esperado = new ArchivoPgmP2(3, 3, 255);
+        int[][] datos = {
+                {0, 0, 0},
+                {0, 1, 2},
+                {0, 4, 5}
+        };
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                esperado.setPixel(y, x, datos[y][x]);
+            }
+        }
 
-        //Quedaría:
-        // 0 0 0
-        // 0 1 2
-        // 0 4 5
-
-        assertEquals(0, sh.getPixel(0,0));
-        assertEquals(1, sh.getPixel(1,1));
-        assertEquals(5, sh.getPixel(2,2));
+        ArchivoPgm resultado = p2.shifted(1, 1, 0);
+        assertEquals(esperado, resultado);
     }
 
     @Test
@@ -225,15 +228,19 @@ public class ArchivoPgmTest {
                 p5.setPixel(y, x, v++);
             }
         }
-        ArchivoPgm sh5 = p5.shifted(-1, 1, 7); // desplaza X izquierda, Y abajo, borde=7
+        ArchivoPgm esperado = new ArchivoPgmP5(3, 3, 255);
+        int[][] datos = {
+                {7, 7, 7},
+                {2, 3, 7},
+                {5, 6, 7}
+        };
+        for (int y = 0; y < 3; y++) {
+            for (int x = 0; x < 3; x++) {
+                esperado.setPixel(y, x, datos[y][x]);
+            }
+        }
 
-        //Quedaría:
-        // 7 7 7
-        // 2 3 7
-        // 5 6 7
-
-        assertEquals(7, sh5.getPixel(0,0));
-        assertEquals(3, sh5.getPixel(1,1));
-        assertEquals(7, sh5.getPixel(2,2));
+        ArchivoPgm resultado = p5.shifted(-1, 1, 7);
+        assertEquals(esperado, resultado);
     }
 }
