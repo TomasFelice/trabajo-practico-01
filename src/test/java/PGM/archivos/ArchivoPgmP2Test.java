@@ -27,19 +27,14 @@ public class ArchivoPgmP2Test {
 
         ArchivoPgmP2 pgm1 = new ArchivoPgmP2(2, 2, 255);
 
-        assertThrows(IOException.class, () -> {
-            pgm1.readPixelData(bis1);
-        });
+        assertThrows(IOException.class, () -> pgm1.readPixelData(bis1));
 
-        String input2 = "1\n2\n3"; // falta un valor
         ByteArrayInputStream bais2 = new ByteArrayInputStream(input1.getBytes(StandardCharsets.US_ASCII));
         BufferedInputStream bis2 = new BufferedInputStream(bais2);
 
         ArchivoPgmP2 pgm2 = new ArchivoPgmP2(2, 2, 255);
 
-        assertThrows(IOException.class, () -> {
-            pgm2.readPixelData(bis2);
-        });
+        assertThrows(IOException.class, () -> pgm2.readPixelData(bis2));
     }
 
     @Test
@@ -86,5 +81,25 @@ public class ArchivoPgmP2Test {
         // Verificamos que la lectura coincide con lo que escribimos
         assertEquals(desplazada, leida);
     }
-}
 
+    @Test
+    void readPixelData_IgnoraComentariosCorrectamente() throws IOException {
+        ArchivoPgmP2 pgm = new ArchivoPgmP2(2, 2, 255); // Imagen de 2x2
+        String inputConComentarios =
+                """
+                        # Esto es un comentario al inicio
+                        10 20 # Comentario al final de la linea
+                        # Otra linea de comentario
+                        30 40""";
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(inputConComentarios.getBytes(StandardCharsets.US_ASCII));
+        BufferedInputStream bis = new BufferedInputStream(bais);
+
+        pgm.readPixelData(bis);
+
+        assertEquals(10, pgm.getPixel(0, 0));
+        assertEquals(20, pgm.getPixel(0, 1));
+        assertEquals(30, pgm.getPixel(1, 0));
+        assertEquals(40, pgm.getPixel(1, 1));
+    }
+}

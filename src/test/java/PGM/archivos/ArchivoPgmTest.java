@@ -9,6 +9,42 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class ArchivoPgmTest {
 
+    // --- Constantes para los tests de shifted ---
+    private static final int ALTO_TEST = 3;
+    private static final int ANCHO_TEST = 3;
+    private static final int VALOR_MAX_TEST = 255;
+    private static final int VALOR_RELLENO_P2 = 0;
+    private static final int VALOR_RELLENO_P5_CASO1 = 7; // Usado en el test original renombrado
+    private static final int VALOR_RELLENO_P5_OTROS = 42;
+
+
+    // --- Helper para llenar la imagen de prueba con un patrón secuencial ---
+    private void llenarImagenConPatronSecuencial(ArchivoPgm pgm) {
+        int valorPixel = 1;
+        for (int y = 0; y < pgm.getAlto(); y++) {
+            for (int x = 0; x < pgm.getAncho(); x++) {
+                pgm.setPixel(y, x, valorPixel++);
+            }
+        }
+    }
+
+    // --- Helper para crear y llenar una imagen esperada ---
+    private ArchivoPgm crearImagenEsperada(String tipo, int[][] datosPixel) {
+        ArchivoPgm esperado;
+        if ("P2".equals(tipo)) {
+            esperado = new ArchivoPgmP2(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        } else {
+            esperado = new ArchivoPgmP5(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        }
+        for (int y = 0; y < ALTO_TEST; y++) {
+            for (int x = 0; x < ANCHO_TEST; x++) {
+                esperado.setPixel(y, x, datosPixel[y][x]);
+            }
+        }
+        return esperado;
+    }
+
+
     @Test
     void ValoresValidosCrearInstancia() {
         ArchivoPgm pgmp2 = new ArchivoPgmP2(4, 5, 100);
@@ -86,7 +122,7 @@ public class ArchivoPgmTest {
             }
         }
 
-        ArchivoPgm pgm5 = new ArchivoPgmP2(2, 3, 100) {};
+        ArchivoPgm pgm5 = new ArchivoPgmP2(2, 3, 100) {}; // Debería ser ArchivoPgmP5
         int[][] matrizp5 = pgm5.getMatriz();
 
         for (int i = 0; i < 2; i++) {
@@ -171,76 +207,196 @@ public class ArchivoPgmTest {
         assertThrows(NumberFormatException.class, () -> ArchivoPgm.read(archivoErroneoValMax));
     }
 
-    //lo de directorio hace falta hacer el test?
 
     @Test
     void shiftedConOffsetCeroDevuelveMismaInstancia() {
         ArchivoPgm p2 = new ArchivoPgmP2(2,2,255);
         ArchivoPgm result = p2.shifted(0,0, 42);
         assertSame(p2, result, "Cuando dx=0 y dy=0 debe retornar la misma instancia");
+
+        ArchivoPgm p5 = new ArchivoPgmP5(2,2,255);
+        ArchivoPgm resultP5 = p5.shifted(0,0, 42);
+        assertSame(p5, resultP5, "Cuando dx=0 y dy=0 debe retornar la misma instancia para P5");
     }
 
+    // --- Tests para P2 shifted ---
+
     @Test
-    void shiftedP2RellenaBordeYDesplazaCorrectamente() {
-        // Creamos un 3×3 con valores conocidos
-        ArchivoPgm p2 = new ArchivoPgmP2(3,3,255);
+    void testShiftedP2_dxPos_dyPos_RellenaCorrectamente() { // Anteriormente shiftedP2RellenaBordeYDesplazaCorrectamente
+        ArchivoPgm p2Original = new ArchivoPgmP2(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p2Original);
 
-        //Original:
-        // 1 2 3
-        // 4 5 6
-        // 7 8 9
+        int dx = 1, dy = 1;
+        ArchivoPgm resultado = p2Original.shifted(dx, dy, VALOR_RELLENO_P2);
 
-        int v = 1;
-        for(int y=0; y<3; y++){
-            for(int x=0; x<3; x++){
-                p2.setPixel(y,x, v++);
-            }
-        }
-
-        ArchivoPgm esperado = new ArchivoPgmP2(3, 3, 255);
-        int[][] datos = {
-                {0, 0, 0},
-                {0, 1, 2},
-                {0, 4, 5}
+        int[][] datosEsperados = {
+                {VALOR_RELLENO_P2, VALOR_RELLENO_P2, VALOR_RELLENO_P2},
+                {VALOR_RELLENO_P2, 1, 2},
+                {VALOR_RELLENO_P2, 4, 5}
         };
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                esperado.setPixel(y, x, datos[y][x]);
-            }
-        }
-
-        ArchivoPgm resultado = p2.shifted(1, 1, 0);
+        ArchivoPgm esperado = crearImagenEsperada("P2", datosEsperados);
         assertEquals(esperado, resultado);
     }
 
     @Test
-    void shiftedP5RellenaBordeYDesplazaCorrectamente() {
+    void testShiftedP2_dxPos_dyNeg_RellenaCorrectamente() {
+        ArchivoPgm p2Original = new ArchivoPgmP2(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p2Original);
 
-        ArchivoPgm p5 = new ArchivoPgmP5(3,3,255);
-        //Original:
-        // 1 2 3
-        // 4 5 6
-        // 7 8 9
+        int dx = 1, dy = -1;
+        ArchivoPgm resultado = p2Original.shifted(dx, dy, VALOR_RELLENO_P2);
 
-        int v=1;
-        for(int y=0;y<3;y++) {
-            for (int x = 0; x < 3; x++) {
-                p5.setPixel(y, x, v++);
-            }
-        }
-        ArchivoPgm esperado = new ArchivoPgmP5(3, 3, 255);
-        int[][] datos = {
-                {7, 7, 7},
-                {2, 3, 7},
-                {5, 6, 7}
+        int[][] datosEsperados = {
+                {VALOR_RELLENO_P2, 4, 5},
+                {VALOR_RELLENO_P2, 7, 8},
+                {VALOR_RELLENO_P2, VALOR_RELLENO_P2, VALOR_RELLENO_P2}
         };
-        for (int y = 0; y < 3; y++) {
-            for (int x = 0; x < 3; x++) {
-                esperado.setPixel(y, x, datos[y][x]);
+        ArchivoPgm esperado = crearImagenEsperada("P2", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+
+    @Test
+    void testShiftedP2_dxNeg_dyPos_RellenaCorrectamente() {
+        ArchivoPgm p2Original = new ArchivoPgmP2(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p2Original);
+
+        int dx = -1, dy = 1;
+        ArchivoPgm resultado = p2Original.shifted(dx, dy, VALOR_RELLENO_P2);
+
+        int[][] datosEsperados = {
+                {VALOR_RELLENO_P2, VALOR_RELLENO_P2, VALOR_RELLENO_P2},
+                {2, 3, VALOR_RELLENO_P2},
+                {5, 6, VALOR_RELLENO_P2}
+        };
+        ArchivoPgm esperado = crearImagenEsperada("P2", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+
+    @Test
+    void testShiftedP2_dxNeg_dyNeg_RellenaCorrectamente() {
+        ArchivoPgm p2Original = new ArchivoPgmP2(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p2Original);
+
+        int dx = -1, dy = -1;
+        ArchivoPgm resultado = p2Original.shifted(dx, dy, VALOR_RELLENO_P2);
+
+        int[][] datosEsperados = {
+                {5, 6, VALOR_RELLENO_P2},
+                {8, 9, VALOR_RELLENO_P2},
+                {VALOR_RELLENO_P2, VALOR_RELLENO_P2, VALOR_RELLENO_P2}
+        };
+        ArchivoPgm esperado = crearImagenEsperada("P2", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+
+    // --- Tests para P5 shifted ---
+
+    @Test
+    void testShiftedP5_dxNeg_dyPos_RellenaCorrectamente() { // Anteriormente shiftedP5RellenaBordeYDesplazaCorrectamente
+        ArchivoPgm p5Original = new ArchivoPgmP5(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p5Original);
+        
+        int dx = -1, dy = 1;
+        // Usamos VALOR_RELLENO_P5_CASO1 para mantener la consistencia con el test original
+        ArchivoPgm resultado = p5Original.shifted(dx, dy, VALOR_RELLENO_P5_CASO1);
+
+        int[][] datosEsperados = {
+                {VALOR_RELLENO_P5_CASO1, VALOR_RELLENO_P5_CASO1, VALOR_RELLENO_P5_CASO1},
+                {2, 3, VALOR_RELLENO_P5_CASO1},
+                {5, 6, VALOR_RELLENO_P5_CASO1}
+        };
+        ArchivoPgm esperado = crearImagenEsperada("P5", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+
+    @Test
+    void testShiftedP5_dxPos_dyPos_RellenaCorrectamente() {
+        ArchivoPgm p5Original = new ArchivoPgmP5(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p5Original);
+
+        int dx = 1, dy = 1;
+        ArchivoPgm resultado = p5Original.shifted(dx, dy, VALOR_RELLENO_P5_OTROS);
+
+        int[][] datosEsperados = {
+                {VALOR_RELLENO_P5_OTROS, VALOR_RELLENO_P5_OTROS, VALOR_RELLENO_P5_OTROS},
+                {VALOR_RELLENO_P5_OTROS, 1, 2},
+                {VALOR_RELLENO_P5_OTROS, 4, 5}
+        };
+        ArchivoPgm esperado = crearImagenEsperada("P5", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+
+    @Test
+    void testShiftedP5_dxPos_dyNeg_RellenaCorrectamente() {
+        ArchivoPgm p5Original = new ArchivoPgmP5(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p5Original);
+
+        int dx = 1, dy = -1;
+        ArchivoPgm resultado = p5Original.shifted(dx, dy, VALOR_RELLENO_P5_OTROS);
+
+        int[][] datosEsperados = {
+                {VALOR_RELLENO_P5_OTROS, 4, 5},
+                {VALOR_RELLENO_P5_OTROS, 7, 8},
+                {VALOR_RELLENO_P5_OTROS, VALOR_RELLENO_P5_OTROS, VALOR_RELLENO_P5_OTROS}
+        };
+        ArchivoPgm esperado = crearImagenEsperada("P5", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+
+    @Test
+    void testShiftedP5_dxNeg_dyNeg_RellenaCorrectamente() {
+        ArchivoPgm p5Original = new ArchivoPgmP5(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p5Original);
+
+        int dx = -1, dy = -1;
+        ArchivoPgm resultado = p5Original.shifted(dx, dy, VALOR_RELLENO_P5_OTROS);
+
+        int[][] datosEsperados = {
+                {5, 6, VALOR_RELLENO_P5_OTROS},
+                {8, 9, VALOR_RELLENO_P5_OTROS},
+                {VALOR_RELLENO_P5_OTROS, VALOR_RELLENO_P5_OTROS, VALOR_RELLENO_P5_OTROS}
+        };
+        ArchivoPgm esperado = crearImagenEsperada("P5", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+
+    // --- Test adicional para desplazamiento total ---
+    @Test
+    void testShiftedP2_DesplazamientoTotalRellenaCompletamente() {
+        ArchivoPgm p2Original = new ArchivoPgmP2(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p2Original);
+
+        int dx = ALTO_TEST + 1; // Desplazamiento mayor que la altura
+        int dy = ANCHO_TEST + 1; // Desplazamiento mayor que el ancho
+        int valorRelleno = 77;
+        ArchivoPgm resultado = p2Original.shifted(dx, dy, valorRelleno);
+
+        int[][] datosEsperados = new int[ALTO_TEST][ANCHO_TEST];
+        for (int y = 0; y < ALTO_TEST; y++) {
+            for (int x = 0; x < ANCHO_TEST; x++) {
+                datosEsperados[y][x] = valorRelleno;
             }
         }
+        ArchivoPgm esperado = crearImagenEsperada("P2", datosEsperados);
+        assertEquals(esperado, resultado);
+    }
+     @Test
+    void testShiftedP5_DesplazamientoTotalRellenaCompletamente() {
+        ArchivoPgm p5Original = new ArchivoPgmP5(ALTO_TEST, ANCHO_TEST, VALOR_MAX_TEST);
+        llenarImagenConPatronSecuencial(p5Original);
 
-        ArchivoPgm resultado = p5.shifted(-1, 1, 7);
+        int dx = ALTO_TEST + 1; // Desplazamiento mayor que la altura
+        int dy = ANCHO_TEST + 1; // Desplazamiento mayor que el ancho
+        int valorRelleno = 88;
+        ArchivoPgm resultado = p5Original.shifted(dx, dy, valorRelleno);
+
+        int[][] datosEsperados = new int[ALTO_TEST][ANCHO_TEST];
+        for (int y = 0; y < ALTO_TEST; y++) {
+            for (int x = 0; x < ANCHO_TEST; x++) {
+                datosEsperados[y][x] = valorRelleno;
+            }
+        }
+        ArchivoPgm esperado = crearImagenEsperada("P5", datosEsperados);
         assertEquals(esperado, resultado);
     }
 }
